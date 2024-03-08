@@ -2,17 +2,26 @@ import { APIGatewayProxyHandler } from "aws-lambda";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
+type CreatePresignedUrlWithClientParams = {
+  region: string;
+  bucket: string;
+  key: string;
+  contentType: string;
+};
+
 /**
  * Create a presigned URL for a PUT request to upload a file to the specified Amazon S3 bucket
  *
- * @param region The region of the Amazon S3 bucket
- * @param bucket The name of the Amazon S3 bucket
- * @param key The key of the object to upload
+ * @param params {CreatePresignedUrlWithClientParams}
  * @returns A promise that resolves to the presigned URL
  */
-const createPresignedUrlWithClient = (region: string, bucket: string, key: string) => {
+const createPresignedUrlWithClient = ({ region, bucket, key, contentType }: CreatePresignedUrlWithClientParams) => {
   const client = new S3Client({ region: region });
-  const command = new PutObjectCommand({ Bucket: bucket, Key: key });
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    ContentType: contentType,
+   });
 
   return getSignedUrl(client, command, { expiresIn: 3600 });
 };
@@ -22,7 +31,7 @@ const createPresignedUrlWithClient = (region: string, bucket: string, key: strin
  */
 export const main: APIGatewayProxyHandler = async ({ body }) => {
   try {
-    const { path } = JSON.parse(body || '{}');
+    const { path, contentType } = JSON.parse(body || '{}');
     const { BUCKET_NAME, BUCKET_REGION } = process.env;
 
     if (!path) {
@@ -33,11 +42,12 @@ export const main: APIGatewayProxyHandler = async ({ body }) => {
       throw Error("Invalid environment variables");
     }
 
-    const presignedUrl = await createPresignedUrlWithClient(
-      BUCKET_REGION,
-      BUCKET_NAME,
-      path,
-    );
+    const presignedUrl = await createPresignedUrlWithClient({
+      region: BUCKET_REGION,
+      bucket: BUCKET_NAME,
+      key: path,
+      contentType: contentType
+    });
 
     return {
       statusCode: 200,
@@ -50,6 +60,7 @@ export const main: APIGatewayProxyHandler = async ({ body }) => {
     return {
       statusCode: 500,
       body: JSON.stringify({
+        error: true,
         message: error.message,
       }),
     }
