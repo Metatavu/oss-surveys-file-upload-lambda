@@ -1,0 +1,29 @@
+{
+  "name": "oss-surveys-file-upload-lambda",
+  "description": "OSS Surveys file upload lambda",
+  "version": "1.0.0",
+  "main": "serverless.yaml",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.525.0",
+    "@aws-sdk/s3-request-presigner": "^3.525.0",
+    "serverless-bundle": "6.0.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.136",
+    "ts-node": "10.9.1",
+    "@types/node": "18.18.2",
+    "typescript": "4.9.5",
+    "serverless": "3.36.0",
+    "serverless-esbuild": "1.48.5",
+    "serverless-dotenv-plugin": "6.0.0",
+    "@serverless/typescript": "3.30.1"
+  }
+}
