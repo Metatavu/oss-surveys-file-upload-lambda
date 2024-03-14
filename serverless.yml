@@ -3,6 +3,7 @@ frameworkVersion: '3'
 plugins:
   - serverless-esbuild
   - serverless-dotenv-plugin
+  - serverless-deployment-bucket
 
 useDotenv: true
 provider:
@@ -26,6 +27,9 @@ provider:
           Action:
             - "s3:PutObject"
           Resource: "arn:aws:s3:::${self:custom.s3BucketName.${self:provider.stage}}/*"
+
+  deploymentBucket: 
+    name: "${self:service}-${opt:stage}-deploy"
 
 functions:
   fileUpload:
