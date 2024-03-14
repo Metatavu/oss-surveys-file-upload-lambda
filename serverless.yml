@@ -44,8 +44,8 @@ custom:
     staging: staging-oss-surveys
     production: oss-surveys
   keycloakUrl:
-    staging: https:staging-oss-surveys-auth.metatavu.io/realms/oss
-    production: https:oss-surveys-auth.metatavu.io/realms/oss
+    staging: https://staging-oss-surveys-auth.metatavu.io/realms/suur-savo
+    production: https://oss-surveys-auth.metatavu.io/realms/oss
   region:
     staging: us-east-2
     production: eu-central-1
