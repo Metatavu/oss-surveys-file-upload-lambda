@@ -27,6 +27,14 @@ const createPresignedUrlWithClient = ({ region, bucket, key, contentType }: Crea
 };
 
 /**
+ * We need to respond with adequate CORS headers.
+ */
+const headers = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Credentials": true
+};
+
+/**
  * Lambda function that returns a presigned URL for a PUT request to upload a file to the specified Amazon S3 bucket
  */
 export const main: APIGatewayProxyHandler = async ({ body }) => {
@@ -51,6 +59,7 @@ export const main: APIGatewayProxyHandler = async ({ body }) => {
 
     return {
       statusCode: 200,
+      headers: headers,
       body: JSON.stringify({
         error: false,
         data: presignedUrl,
