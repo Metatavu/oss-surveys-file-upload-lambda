@@ -11,6 +11,9 @@ provider:
   region: ${self:custom.region.${opt:stage, 'sta'}}
   name: aws
   runtime: nodejs18.x
+  environment:
+    BUCKET_NAME: ${env:BUCKET_NAME}
+    BUCKET_REGION: ${env:BUCKET_REGION}
   httpApi:
     cors: true
     authorizers:
@@ -28,7 +31,7 @@ provider:
             - "s3:PutObject"
           Resource: "arn:aws:s3:::${self:custom.s3BucketName.${self:provider.stage}}/*"
 
-  deploymentBucket: 
+  deploymentBucket:
     name: "${self:service}-${opt:stage}-deploy"
 
 functions:
@@ -38,6 +41,8 @@ functions:
       - httpApi:
           path: /uploadFile
           method: post
+          authorizer:
+            name: keycloakAuthorizer
     name: oss-surveys-${opt:stage}-file-upload-lambda
 
 package:
