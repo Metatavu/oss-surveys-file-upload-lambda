@@ -43,11 +43,17 @@ export const main: APIGatewayProxyHandler = async ({ body }) => {
     const { BUCKET_NAME, BUCKET_REGION } = process.env;
 
     if (!path) {
-      throw Error("Invalid request body");
+      throw {
+        statusCode: 400,
+        message: "Invalid request body",
+      };
     }
 
     if (!BUCKET_NAME || !BUCKET_REGION) {
-      throw Error("Invalid environment variables");
+      throw {
+        statusCode: 500,
+        message: "Invalid lambda environment variables",
+      };
     }
 
     const presignedUrl = await createPresignedUrlWithClient({
