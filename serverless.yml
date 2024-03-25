@@ -1,0 +1,70 @@
+service: oss-surveys-${opt:stage}-file-upload-lambda
+frameworkVersion: '3'
+plugins:
+  - serverless-esbuild
+  - serverless-dotenv-plugin
+  - serverless-deployment-bucket
+
+useDotenv: true
+provider:
+  stage: ${opt:stage, 'stage'}
+  region: ${self:custom.region.${opt:stage, 'sta'}}
+  name: aws
+  runtime: nodejs18.x
+  environment:
+    BUCKET_NAME: ${env:BUCKET_NAME}
+    BUCKET_REGION: ${env:BUCKET_REGION}
+  httpApi:
+    cors: true
+    authorizers:
+      keycloakAuthorizer:
+        identitySource: $request.header.Authorization
+        issuerUrl: ${self:custom.keycloakUrl.${self:provider.stage}}
+        audience:
+          - account
+  iam:
+    role:
+      name: oss-surveys-file-upload-lambda-${opt:stage}-role
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "s3:PutObject"
+          Resource: "arn:aws:s3:::${self:custom.s3BucketName.${self:provider.stage}}/*"
+
+  deploymentBucket:
+    name: "${self:service}-${opt:stage}-deploy"
+
+functions:
+  fileUpload:
+    handler: src/file-upload/handler.main
+    events:
+      - httpApi:
+          path: /uploadFile
+          method: post
+          authorizer:
+            name: keycloakAuthorizer
+    name: oss-surveys-${opt:stage}-file-upload-lambda
+
+package:
+  individually: true
+
+custom:
+  s3BucketName:
+    staging: staging-oss-surveys
+    production: oss-surveys
+  keycloakUrl:
+    staging: https://staging-oss-surveys-auth.metatavu.io/realms/suur-savo
+    production: https://oss-surveys-auth.metatavu.io/realms/oss
+  region:
+    staging: us-east-2
+    production: eu-central-1
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    exclude:
+      - aws-sdk
+    target: node18
+    define: {}
+    platform: node
+    concurrency: 10
