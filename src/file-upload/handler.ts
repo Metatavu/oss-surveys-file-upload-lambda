@@ -73,7 +73,7 @@ export const main: APIGatewayProxyHandler = async ({ body }) => {
     };
   } catch (error: any) {
     return {
-      statusCode: 500,
+      statusCode: error.statusCode ?? 500,
       body: JSON.stringify({
         error: true,
         message: error.message,
